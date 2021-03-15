@@ -1,3 +1,7 @@
+from objects.factor import Factor
+from objects.helpers import new_key_from_existing
+from typing import List
+
 
 """
 function that restricts a variable to some value in agiven factor.
@@ -9,24 +13,56 @@ def observe(factor, variable, value):
     print()
 
 
-"""
- function that multiplies two factors.
-"""
+def multiply(f1: Factor, f2: Factor) -> Factor:
+    """
+    Function that multiplies two factors. The function tries to automatically figure out
+    on what variable to perform the join.
+    """
+    joint_factor = f1 if f1.relation.is_joint else f2
+    conditional_factor = f1 if f1.relation.is_conditional else f2
+
+    assert(joint_factor.relation.is_joint)
+    assert(conditional_factor.relation.is_conditional)
+
+    # Automatic detection of variable to join on. Works with in-class examples, but may
+    #   misbehave pretty badly with any other factors
+    joint_rel = joint_factor.relation
+    cond_rel = conditional_factor.relation
+    joining_var = list(set(joint_rel.variables).intersection(set(cond_rel.variables)))[0]
+
+    new_relation = ','.join(joint_rel.variables + [var for var in cond_rel.variables if var != joining_var])
+    new_f = Factor(new_relation, joint_rel.values + cond_rel.values)
+
+    for key in new_f.kit:
+        joint_key = new_key_from_existing(key, joint_rel.variables)
+        cond_key = new_key_from_existing(key, cond_rel.variables)
+
+        new_f.data[key] = conditional_factor.data[cond_key] * joint_factor.data[joint_key]
+
+    return new_f
 
 
-def multiply(factor1, factor2):
-    # TODO: Implement
-    print()
+def sumout(f: Factor, v: str) -> Factor:
+    """
+    Function that sums out a variable in a given factor.
+    """
+    assert(not f.relation.is_conditional)
+    assert(v in f.relation.variables)
+    assert(len(f.relation.variables) > 1)
 
+    remaining_vars = [var for var in f.relation.variables if var != v]
+    new_f = Factor(','.join(remaining_vars), f.relation.values)
 
-"""
-function that sums out a variable in a given factor.
-"""
+    for key in new_f.kit:
+        keys = f.find_fuzzy_keys(key)
 
+        s = 0
+        for k in keys:
+            s += f.data[k]
 
-def sumout(factor, variable):
-    # TODO: Implement
-    print()
+        new_f.data[key] = s
+
+    return new_f
 
 
 """
