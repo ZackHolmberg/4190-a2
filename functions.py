@@ -15,29 +15,37 @@ def observe(factor, variable, value):
 
 def multiply(f1: Factor, f2: Factor) -> Factor:
     """
-    Function that multiplies two factors. The function tries to automatically figure out
-    on what variable to perform the join.
+    Function that multiplies two factors. The join is pretty much a pointwise product of entries
+    of both tables, as explained in the course notes.
     """
-    joint_factor = f1 if f1.relation.is_joint else f2
-    conditional_factor = f1 if f1.relation.is_conditional else f2
+    # For the new factor we extract what variables should be on the left of '|' and what variables
+    #   should be on the right of '|'
+    variables_on_the_left = set()
+    variables_all = set()
+    for f in [f1, f2]:
+        if f.relation.is_conditional:
+            variables_on_the_left = variables_on_the_left.union(set(f.relation.query_variables))
+        else:
+            variables_on_the_left = variables_on_the_left.union(set(f.relation.variables))
 
-    assert(joint_factor.relation.is_joint)
-    assert(conditional_factor.relation.is_conditional)
+        variables_all = variables_all.union(set(f.relation.variables))
+    variables_on_the_right = list(variables_all.difference(variables_on_the_left))
+    variables_on_the_left = list(variables_on_the_left)
 
-    # Automatic detection of variable to join on. Works with in-class examples, but may
-    #   misbehave pretty badly with any other factors
-    joint_rel = joint_factor.relation
-    cond_rel = conditional_factor.relation
-    joining_var = list(set(joint_rel.variables).intersection(set(cond_rel.variables)))[0]
+    # If there are no variables on the right of '|', then the new factor is a joint factor,
+    #   otherwise it is a conditional factor
+    if len(variables_on_the_right) == 0:
+        new_relation = ','.join(variables_on_the_left)
+    else:
+        new_relation = ','.join(variables_on_the_left) + '|' + ','.join(variables_on_the_right)
 
-    new_relation = ','.join(joint_rel.variables + [var for var in cond_rel.variables if var != joining_var])
-    new_f = Factor(new_relation, joint_rel.values + cond_rel.values)
+    new_f = Factor(new_relation, list(set(f1.relation.values + f2.relation.values)))
 
     for key in new_f.kit:
-        joint_key = new_key_from_existing(key, joint_rel.variables)
-        cond_key = new_key_from_existing(key, cond_rel.variables)
+        f1_key = new_key_from_existing(key, f1.relation.variables)
+        f2_key = new_key_from_existing(key, f2.relation.variables)
 
-        new_f.data[key] = conditional_factor.data[cond_key] * joint_factor.data[joint_key]
+        new_f.data[key] = f1.data[f1_key] * f2.data[f2_key]
 
     return new_f
 
@@ -46,12 +54,31 @@ def sumout(f: Factor, v: str) -> Factor:
     """
     Function that sums out a variable in a given factor.
     """
-    assert(not f.relation.is_conditional)
     assert(v in f.relation.variables)
     assert(len(f.relation.variables) > 1)
 
-    remaining_vars = [var for var in f.relation.variables if var != v]
-    new_f = Factor(','.join(remaining_vars), f.relation.values)
+
+    variables_on_the_left = set()
+    variables_all = set(f.relation.variables)
+    if f.relation.is_conditional:
+        variables_on_the_left = variables_on_the_left.union(set(f.relation.query_variables))
+    else:
+        variables_on_the_left = variables_on_the_left.union(set(f.relation.variables))
+
+    variables_on_the_left.discard(v)
+    variables_all.discard(v)
+
+    variables_on_the_right = list(variables_all.difference(variables_on_the_left))
+    variables_on_the_left = list(variables_on_the_left)
+
+    # If there are no variables on the right of '|', then the new factor is a joint factor,
+    #   otherwise it is a conditional factor
+    if len(variables_on_the_right) == 0:
+        new_relation = ','.join(variables_on_the_left)
+    else:
+        new_relation = ','.join(variables_on_the_left) + '|' + ','.join(variables_on_the_right)
+
+    new_f = Factor(new_relation, list(set(f.relation.values)))
 
     for key in new_f.kit:
         keys = f.find_fuzzy_keys(key)

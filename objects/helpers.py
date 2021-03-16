@@ -28,11 +28,14 @@ def new_key_from_existing(key: str, variables: List[str]) -> str:
     Example: key='+r,-t,+l', variables=['R', 'L'], returns='+r,+l'
     """
     key_values = get_key_values(key)
-    matched_key_values = []
+    key_variables = [ value_to_variable(v) for v in key_values ]
 
-    for value in key_values:
-        variable = value_to_variable(value)
-        if variable in variables:
-            matched_key_values.append(value)
+    matched_key_values = []
+    for variable in variables:
+        try:
+            index = key_variables.index(variable)
+            matched_key_values.append(key_values[index])
+        except:
+            pass
 
     return ','.join(matched_key_values)

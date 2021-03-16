@@ -45,6 +45,6 @@ class Factor:
         result = f'Table for {self.relation}:\n'
 
         for key in self.kit:
-            result += '  {}  {:.4f}\n'.format(key, self.data[key])
+            result += '  {}  {:.8f}\n'.format(key, self.data[key])
 
         return result

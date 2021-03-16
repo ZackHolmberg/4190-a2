@@ -50,35 +50,6 @@ print(kit4)
 assert(kit4_rows == 4)
 
 
-
-
-
-
-
-
-
-# Alarm example: P(B), P(E), P(A|B,E), P(J|A), P(M|A)
-burglary = Factor('B')
-burglary.init([0.999, 0.001])
-print(burglary)
-
-earthquake = Factor('E')
-earthquake.init([0.998, 0.002])
-print(earthquake)
-
-alarm = Factor('A|B,E')
-alarm.init([0.999, 0.001, 0.71, 0.29, 0.06, 0.94, 0.05, 0.95])
-print(alarm)
-
-john = Factor('J|A')
-john.init([0.95, 0.05, 0.1, 0.9])
-print(john)
-
-mary = Factor('M|A')
-mary.init([0.99, 0.01, 0.3, 0.7])
-print(mary)
-
-
 # Rain-traffic-late example given +r, P(+r), P(T|+r), P(L|T)
 rain2 = Factor('R', ['+r'])
 rain2.init([0.1])
@@ -123,3 +94,29 @@ l = sumout(tl3, 'T')
 print(l)
 
 
+# Alarm example: P(B), P(E), P(A|B,E), P(J|A), P(M|A)
+burglary = Factor('B')
+burglary.init([0.999, 0.001])
+print(burglary)
+
+earthquake = Factor('E')
+earthquake.init([0.998, 0.002])
+print(earthquake)
+
+alarm = Factor('A|B,E')
+alarm.init([0.999, 0.001, 0.71, 0.29, 0.06, 0.94, 0.05, 0.95])
+print(alarm)
+
+john = Factor('J|A')
+john.init([0.95, 0.05, 0.1, 0.9])
+print(john)
+
+mary = Factor('M|A')
+mary.init([0.99, 0.01, 0.3, 0.7])
+print(mary)
+
+f1 = multiply(burglary, earthquake)
+f2 = multiply(f1, alarm)
+f3 = multiply(f2, john)
+f4 = multiply(f3, mary)
+print(f4)

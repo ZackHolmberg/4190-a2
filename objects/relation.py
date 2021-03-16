@@ -15,7 +15,7 @@ class Relation:
             self.evidence_variables = chunks[1].split(',')
             self.variables = self.evidence_variables + self.query_variables
 
-            assert(len(self.query_variables) == 1 and len(self.evidence_variables) >= 1)
+            assert(len(self.query_variables) >= 1 and len(self.evidence_variables) >= 1)
         else:
             self.variables = relation.split(',')
             
