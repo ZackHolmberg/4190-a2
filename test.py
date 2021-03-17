@@ -1,5 +1,5 @@
 from objects.factor import Factor
-from functions import sumout,multiply
+from functions import sumout, multiply, observe, normalize
 from objects.key_iterator import KeyIterator
 from objects.relation import Relation
 
@@ -13,9 +13,11 @@ assert(relation2.is_joint)
 assert(relation3.is_conditional)
 assert(relation4.is_joint)
 
-print(relation1.variables, relation1.query_variables, relation1.evidence_variables)
+print(relation1.variables, relation1.query_variables,
+      relation1.evidence_variables)
 print(relation2.variables)
-print(relation3.variables, relation3.query_variables, relation3.evidence_variables)
+print(relation3.variables, relation3.query_variables,
+      relation3.evidence_variables)
 print(relation4.variables)
 print(relation3.values)
 print(relation4.values)
@@ -72,7 +74,7 @@ print(rtl2)
 
 # R-T-L Full join and sumout:
 rain3 = Factor('R')
-rain3.init([0.9,0.1])
+rain3.init([0.9, 0.1])
 print(rain3)
 
 traffic3 = Factor('T|R')
@@ -120,3 +122,34 @@ f2 = multiply(f1, alarm)
 f3 = multiply(f2, john)
 f4 = multiply(f3, mary)
 print(f4)
+
+# ========== OBSERVE TESTS ==========
+observeBefore = Factor('L|T')
+observeBefore.init([0.9, 0.1, 0.7, 0.3])
+print("Before observe: ", observeBefore)
+observeAfter = observe(observeBefore, "T", "+")
+print("After observe: ", observeAfter)
+
+observeBefore2 = Factor('Z,T,H')
+print("Before init: ", observeBefore2.relation.values)
+observeBefore2.init([0.8, 0.2, 0.4, 0.6, 0.9, 0.1, 0.7, 0.3])
+print("Before observe: ", observeBefore2)
+observeAfter2 = observe(observeBefore2, "T", "+")
+print("After observe: ", observeAfter2)
+
+# ========== NORMALIZE TESTS ==========
+normalizeBefore = Factor('Z|H')
+print("Before init: ", normalizeBefore.relation.values)
+normalizeBefore.init([0.8, 0.2, 0.4, 0.6])
+print("Before normalization: ", normalizeBefore)
+normalizeAfter = normalize(normalizeBefore)
+print("After normalize: ", normalizeAfter)
+assert(sum(normalizeAfter.data.values()) == 1.0)
+
+normalizeBefore2 = Factor('Z,T,H')
+print("Before init: ", normalizeBefore2.relation.values)
+normalizeBefore2.init([0.8, 0.2, 0.4, 0.6, 0.9, 0.1, 0.7, 0.3])
+print("Before normalization: ", normalizeBefore2)
+normalizeAfter2 = normalize(normalizeBefore2)
+print("After normalize: ", normalizeAfter2)
+assert(sum(normalizeAfter2.data.values()) == 1.0)
