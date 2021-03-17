@@ -11,13 +11,6 @@ def observe(f: Factor, var: str, val: str) -> Factor:
     assert(len(f.relation.variables) > 0)
     assert(val == '+' or val == '-')
 
-    key = ''
-    if val == '+':
-        key = '-'
-    else:
-        key = '+'
-    key = key + var.lower()
-
     new_f = Factor(f.relation.relation,
                    [val + var.lower()]+f.relation.values)
 

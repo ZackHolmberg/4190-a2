@@ -5,7 +5,7 @@ from .helpers import get_key_values
 
 
 class Factor:
-    def __init__(self, relation: str, known_values=[]):
+    def __init__(self, relation: str, known_values: List[str] = []):
         self.data = {}
         print("Known vals: ", known_values)
         self.relation = Relation(relation, known_values)

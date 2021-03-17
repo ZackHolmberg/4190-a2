@@ -3,7 +3,7 @@ from typing import List, Union
 
 
 class Relation:
-    def __init__(self, relation: str, values=[]):
+    def __init__(self, relation: str, values: List[str] = []):
         self.relation = relation
         self.is_conditional = '|' in relation
         self.is_joint = not self.is_conditional
