@@ -1,8 +1,9 @@
 from .helpers import value_to_variable
 from typing import List, Union
 
+
 class Relation:
-    def __init__(self, relation: str, values: List[str]=[]):
+    def __init__(self, relation: str, values: List[str] = []):
         self.relation = relation
         self.is_conditional = '|' in relation
         self.is_joint = not self.is_conditional
@@ -15,12 +16,12 @@ class Relation:
             self.evidence_variables = chunks[1].split(',')
             self.variables = self.evidence_variables + self.query_variables
 
-            assert(len(self.query_variables) >= 1 and len(self.evidence_variables) >= 1)
+            assert(len(self.query_variables) >=
+                   1 and len(self.evidence_variables) >= 1)
         else:
             self.variables = relation.split(',')
-            
-            assert(len(self.variables) > 0)
 
+            assert(len(self.variables) > 0)
 
     def get_value_by_variable(self, variable: str) -> Union[str, None]:
         """
@@ -33,7 +34,6 @@ class Relation:
                 return value
 
         return None
-
 
     def __str__(self) -> str:
         return f'P({self.relation}), values={self.values}'

@@ -3,14 +3,21 @@ from objects.helpers import new_key_from_existing
 from typing import List
 
 
-"""
-function that restricts a variable to some value in agiven factor.
-"""
+def observe(f: Factor, var: str, val: str) -> Factor:
+    """
+    function that restricts a variable to some value in a given factor.
+    """
+    assert(var in f.relation.variables)
+    assert(len(f.relation.variables) > 0)
+    assert(val == '+' or val == '-')
 
+    new_f = Factor(f.relation.relation,
+                   [val + var.lower()]+f.relation.values)
 
-def observe(factor, variable, value):
-    # TODO: Implement
-    print()
+    for key in new_f.kit:
+        new_f.data[key] = f.data[key]
+
+    return new_f
 
 
 def multiply(f1: Factor, f2: Factor) -> Factor:
@@ -24,12 +31,15 @@ def multiply(f1: Factor, f2: Factor) -> Factor:
     variables_all = set()
     for f in [f1, f2]:
         if f.relation.is_conditional:
-            variables_on_the_left = variables_on_the_left.union(set(f.relation.query_variables))
+            variables_on_the_left = variables_on_the_left.union(
+                set(f.relation.query_variables))
         else:
-            variables_on_the_left = variables_on_the_left.union(set(f.relation.variables))
+            variables_on_the_left = variables_on_the_left.union(
+                set(f.relation.variables))
 
         variables_all = variables_all.union(set(f.relation.variables))
-    variables_on_the_right = list(variables_all.difference(variables_on_the_left))
+    variables_on_the_right = list(
+        variables_all.difference(variables_on_the_left))
     variables_on_the_left = list(variables_on_the_left)
 
     # If there are no variables on the right of '|', then the new factor is a joint factor,
@@ -37,9 +47,11 @@ def multiply(f1: Factor, f2: Factor) -> Factor:
     if len(variables_on_the_right) == 0:
         new_relation = ','.join(variables_on_the_left)
     else:
-        new_relation = ','.join(variables_on_the_left) + '|' + ','.join(variables_on_the_right)
+        new_relation = ','.join(variables_on_the_left) + \
+            '|' + ','.join(variables_on_the_right)
 
-    new_f = Factor(new_relation, list(set(f1.relation.values + f2.relation.values)))
+    new_f = Factor(new_relation, list(
+        set(f1.relation.values + f2.relation.values)))
 
     for key in new_f.kit:
         f1_key = new_key_from_existing(key, f1.relation.variables)
@@ -57,18 +69,20 @@ def sumout(f: Factor, v: str) -> Factor:
     assert(v in f.relation.variables)
     assert(len(f.relation.variables) > 1)
 
-
     variables_on_the_left = set()
     variables_all = set(f.relation.variables)
     if f.relation.is_conditional:
-        variables_on_the_left = variables_on_the_left.union(set(f.relation.query_variables))
+        variables_on_the_left = variables_on_the_left.union(
+            set(f.relation.query_variables))
     else:
-        variables_on_the_left = variables_on_the_left.union(set(f.relation.variables))
+        variables_on_the_left = variables_on_the_left.union(
+            set(f.relation.variables))
 
     variables_on_the_left.discard(v)
     variables_all.discard(v)
 
-    variables_on_the_right = list(variables_all.difference(variables_on_the_left))
+    variables_on_the_right = list(
+        variables_all.difference(variables_on_the_left))
     variables_on_the_left = list(variables_on_the_left)
 
     # If there are no variables on the right of '|', then the new factor is a joint factor,
@@ -76,7 +90,8 @@ def sumout(f: Factor, v: str) -> Factor:
     if len(variables_on_the_right) == 0:
         new_relation = ','.join(variables_on_the_left)
     else:
-        new_relation = ','.join(variables_on_the_left) + '|' + ','.join(variables_on_the_right)
+        new_relation = ','.join(variables_on_the_left) + \
+            '|' + ','.join(variables_on_the_right)
 
     new_f = Factor(new_relation, list(set(f.relation.values)))
 
@@ -92,15 +107,16 @@ def sumout(f: Factor, v: str) -> Factor:
     return new_f
 
 
-"""
-function that normalizes a factor by dividing each entry by thesum of all the entries. 
-This is useful when the factor is a distribution (i.e. sum of the probabilities must be1).
-"""
-
-
-def normalize(factor):
-    # TODO: Implement
-    print()
+def normalize(f: Factor) -> Factor:
+    """
+    function that normalizes a factor by dividing each entry by the sum of all the entries. 
+    This is useful when the factor is a distribution (i.e. sum of the probabilities must be1).
+    """
+    the_sum = sum(f.data.values())
+    for key in f.kit:
+        f.data[key] = f.data[key]/the_sum
+    assert(sum(f.data.values()) == 1.0)
+    return f
 
 
 """
