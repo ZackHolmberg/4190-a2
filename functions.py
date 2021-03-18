@@ -1,5 +1,5 @@
 from objects.factor import Factor
-from objects.helpers import new_key_from_existing
+from objects.helpers import new_key_from_existing, value_to_variable
 from typing import List
 
 
@@ -7,7 +7,6 @@ def observe(f: Factor, var: str, val: str) -> Factor:
     """
     function that restricts a variable to some value in a given factor.
     """
-    assert(var in f.relation.variables)
     assert(len(f.relation.variables) > 0)
     assert(val == '+' or val == '-')
 
@@ -109,7 +108,7 @@ def sumout(f: Factor, v: str) -> Factor:
 
 def normalize(f: Factor) -> Factor:
     """
-    function that normalizes a factor by dividing each entry by the sum of all the entries. 
+    function that normalizes a factor by dividing each entry by the sum of all the entries.
     This is useful when the factor is a distribution (i.e. sum of the probabilities must be1).
     """
     the_sum = sum(f.data.values())
@@ -120,14 +119,44 @@ def normalize(f: Factor) -> Factor:
 
 
 """
-function that computes Pr(queryVariables|evidenceList) by variable elimination. 
-This function shouldrestrict the factors in factorListaccording to the evidence in evidenceList. 
-Next, it should sum-out thehidden variables from the product of the factors in factorList. 
-The variables should be summed out inthe order given in orderedListOfHiddenVariables. 
+function that computes Pr(queryVariables|evidenceList) by variable elimination.
+This function shouldrestrict the factors in factorListaccording to the evidence in evidenceList.
+Next, it should sum-out thehidden variables from the product of the factors in factorList.
+The variables should be summed out inthe order given in orderedListOfHiddenVariables.
 Finally, the answer can be normalized if a probabilitydistribution that sums up to 1 is desired
 """
 
 
-def inference(factorList, queryVariables, orderedListOfHiddenVariables, evidenceList):
-    # TODO: Implement
-    print()
+def inference(factor_list, query_variables, ordered_hidden_variables, evidence_list):
+    # 1. Observe variables in factorList according to the evidence in evidenceList
+    new_factor_list = []
+    for factor in factor_list:
+        for evidence in evidence_list:
+            var = value_to_variable(evidence)
+            val = evidence[0]
+            factor = observe(factor, var, val)
+        new_factor_list.append(factor)
+
+    for hidden_var in ordered_hidden_variables:
+        to_join = []
+        # Join all factors mentioning hidden_var
+        for factor in new_factor_list:
+            if hidden_var in factor.relation.variables:
+                to_join.append(factor)
+        temp_factor = to_join[0]
+        new_factor_list.remove(temp_factor)
+        for i in range(1, len(to_join)):
+            new_factor_list.remove(to_join[i])
+            temp_factor = multiply(temp_factor, to_join[i])
+        temp_factor = sumout(temp_factor, hidden_var)
+        new_factor_list.append(temp_factor)
+
+    temp_factor = new_factor_list[0]
+    for i in range(1, len(new_factor_list)):
+        temp_factor = multiply(temp_factor, new_factor_list[i])
+
+    for var in query_variables:
+        temp_factor = sumout(temp_factor, var)
+
+    to_return = normalize(temp_factor)
+    return to_return

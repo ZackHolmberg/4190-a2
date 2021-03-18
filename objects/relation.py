@@ -37,3 +37,6 @@ class Relation:
 
     def __str__(self) -> str:
         return f'P({self.relation}), values={self.values}'
+
+
+
