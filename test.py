@@ -178,9 +178,9 @@ mary.init([0.99, 0.01, 0.3, 0.7])
 print(mary)
 
 factor_list = [burglary, earthquake, alarm, john, mary]
-query_variables = ["B"]
-ordered_hidden_variables = ["A", "E"]
-evidence_list = ["+j", "-m"]
+query_variables = ["E","B"]
+ordered_hidden_variables = ["A"]
+evidence_list = ["+j", "+m"]
 
 inferenced = inference(factor_list, query_variables,
                        ordered_hidden_variables, evidence_list)

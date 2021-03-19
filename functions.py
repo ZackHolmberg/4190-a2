@@ -155,8 +155,15 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
     for i in range(1, len(new_factor_list)):
         temp_factor = multiply(temp_factor, new_factor_list[i])
 
-    for var in query_variables:
-        temp_factor = sumout(temp_factor, var)
+    temp_factor = normalize(temp_factor)
+    conditional_vars = [ v for v in temp_factor.relation.variables if v not in query_variables ]
+    new_relation = ','.join(query_variables) + '|' + ','.join(conditional_vars)
+    new_f = Factor(new_relation, list(set(temp_factor.relation.values)))
 
-    to_return = normalize(temp_factor)
-    return to_return
+    for key in new_f.kit:
+        keys = temp_factor.find_fuzzy_keys(key)
+        assert(len(keys) == 1)
+
+        new_f.data[key] = temp_factor.data[keys[0]]
+
+    return new_f
