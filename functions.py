@@ -155,8 +155,9 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
     for i in range(1, len(new_factor_list)):
         temp_factor = multiply(temp_factor, new_factor_list[i])
 
-    for var in query_variables:
-        temp_factor = sumout(temp_factor, var)
+    if len(temp_factor.relation.variables) > 1:
+        for var in query_variables:
+            temp_factor = sumout(temp_factor, var)
 
     to_return = normalize(temp_factor)
     return to_return
