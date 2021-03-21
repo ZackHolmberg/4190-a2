@@ -178,9 +178,9 @@ mary.init([0.99, 0.01, 0.3, 0.7])
 print(mary)
 
 factor_list = [burglary, earthquake, alarm, john, mary]
-query_variables = ["B"]
-ordered_hidden_variables = ["A", "E"]
-evidence_list = ["+j", "-m"]
+query_variables = ["E","B"]
+ordered_hidden_variables = ["A"]
+evidence_list = ["+j", "+m"]
 
 inferenced = inference(factor_list, query_variables,
                        ordered_hidden_variables, evidence_list)
@@ -195,7 +195,7 @@ trav.init([0.95, 0.05])
 print(trav)
 
 own_computer = Factor('OC')
-own_computer.init([0.2, 0.8])
+own_computer.init([0.3, 0.7])
 print(own_computer)
 
 fraud = Factor('FRAUD|TRAV')
@@ -203,11 +203,11 @@ fraud.init([0.996, 0.004, 0.99, 0.01])
 print(fraud)
 
 computer_purchase = Factor('CRP|OC')
-computer_purchase.init([0.99, 0.01, 0.9, 0.1])
+computer_purchase.init([0.999, 0.001, 0.9, 0.1])
 print(computer_purchase)
 
 internet_purchase = Factor('IP|FRAUD,OC')
-internet_purchase.init([0.999, 0.001, 0.9, 0.1, 0.949, 0.051, 0.85, 0.15])
+internet_purchase.init([0.999, 0.001, 0.99, 0.01, 0.989, 0.011, 0.98, 0.02])
 print(internet_purchase)
 
 foreign_purchase = Factor('FP|FRAUD,TRAV')
@@ -225,7 +225,7 @@ print(inferenced)
 
 factor_list = [trav, own_computer, fraud, computer_purchase, internet_purchase, foreign_purchase]
 query_variables = ['FRAUD']
-ordered_hidden_variables = ['TRAV', 'OC']
+ordered_hidden_variables = ['TRAV', 'FP', 'FRAUD', 'IP', 'OC', 'CRP']
 evidence_list = ['+fp', '-ip', '+crp']
 
 inferenced = inference(factor_list, query_variables, ordered_hidden_variables, evidence_list)

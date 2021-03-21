@@ -114,7 +114,7 @@ def normalize(f: Factor) -> Factor:
     the_sum = sum(f.data.values())
     for key in f.kit:
         f.data[key] = f.data[key]/the_sum
-    assert(sum(f.data.values()) == 1.0)
+    assert(sum(f.data.values()) > 0.999999 and sum(f.data.values()) < 1.000001)
     return f
 
 
@@ -128,36 +128,92 @@ Finally, the answer can be normalized if a probabilitydistribution that sums up 
 
 
 def inference(factor_list, query_variables, ordered_hidden_variables, evidence_list):
-    # 1. Observe variables in factorList according to the evidence in evidenceList
     new_factor_list = []
+    real_hidden_vars = set()
+
+    for factor in factor_list:
+        # Extract all variables across all factors
+        for variable in factor.relation.variables:
+            real_hidden_vars.add(variable)
+
+    # Observe the evidence values in each factor, and remove evidence variables from real_hidden_vars
     for factor in factor_list:
         for evidence in evidence_list:
             var = value_to_variable(evidence)
             val = evidence[0]
             factor = observe(factor, var, val)
+            real_hidden_vars.discard(var)
+
         new_factor_list.append(factor)
 
+    # Remove query variables from real_hidden_vars
+    for var in query_variables:
+        real_hidden_vars.discard(var)
+
+    print('>: Leftover hidden variables to sum out:', real_hidden_vars)
+    print('>: Elimination order:', ordered_hidden_variables)
+
+    # Sum out remaining hidden variables according to the order, and join the factors together
     for hidden_var in ordered_hidden_variables:
+        if hidden_var not in real_hidden_vars:
+            continue
+
+        print('>: Eliminating:', hidden_var)
+
         to_join = []
+
         # Join all factors mentioning hidden_var
         for factor in new_factor_list:
             if hidden_var in factor.relation.variables:
                 to_join.append(factor)
+
+        print(f'>: Joining and summing out {len(to_join)} factors:', [ str(f.relation) for f in to_join ])
         temp_factor = to_join[0]
         new_factor_list.remove(temp_factor)
+
         for i in range(1, len(to_join)):
+            print(f'>: Joining {temp_factor.relation} with {to_join[i].relation}')
+
             new_factor_list.remove(to_join[i])
             temp_factor = multiply(temp_factor, to_join[i])
+
+            print(temp_factor)
+
+        print(f'>: Done joining {len(to_join)} factors')
         temp_factor = sumout(temp_factor, hidden_var)
+
+        print('>: After summing out', hidden_var)
+        print(temp_factor)
+
         new_factor_list.append(temp_factor)
 
+
+    # One more join across all factors to get a joint probability
     temp_factor = new_factor_list[0]
     for i in range(1, len(new_factor_list)):
         temp_factor = multiply(temp_factor, new_factor_list[i])
 
-    if len(temp_factor.relation.variables) > 1:
-        for var in query_variables:
-            temp_factor = sumout(temp_factor, var)
+    print('>: Final join of remaining factor')
+    print(temp_factor)
 
-    to_return = normalize(temp_factor)
-    return to_return
+    # Construct the final table of probabilities via normalization
+    temp_factor = normalize(temp_factor)
+
+    print('>: Normalized factor')
+    print(temp_factor)
+
+    conditional_vars = [ v for v in temp_factor.relation.variables if v not in query_variables ]
+
+    if conditional_vars:
+        new_relation = ','.join(query_variables) + '|' + ','.join(conditional_vars)
+    else:
+        new_relation = ','.join(query_variables)
+
+    new_f = Factor(new_relation, list(set(temp_factor.relation.values)))
+    for key in new_f.kit:
+        keys = temp_factor.find_fuzzy_keys(key)
+        assert(len(keys) == 1)
+
+        new_f.data[key] = temp_factor.data[keys[0]]
+
+    return new_f
