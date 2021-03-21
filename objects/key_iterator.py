@@ -14,7 +14,7 @@ class KeyIterator:
     def __next__(self) -> str:
         while True:
             # Iterated through every possible permutation of values, now we stop
-            if self.it == 2 ** self.n:
+            if self.it >= 2 ** self.n:
                 self.reset()
                 raise StopIteration()
 

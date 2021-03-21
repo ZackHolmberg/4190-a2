@@ -1,5 +1,5 @@
 from objects.factor import Factor
-from functions import sumout, multiply, observe, normalize
+from functions import inference, sumout, multiply, observe, normalize
 from objects.key_iterator import KeyIterator
 from objects.relation import Relation
 
@@ -97,31 +97,31 @@ print(l)
 
 
 # Alarm example: P(B), P(E), P(A|B,E), P(J|A), P(M|A)
-burglary = Factor('B')
-burglary.init([0.999, 0.001])
-print(burglary)
+# burglary = Factor('B')
+# burglary.init([0.999, 0.001])
+# print(burglary)
 
-earthquake = Factor('E')
-earthquake.init([0.998, 0.002])
-print(earthquake)
+# earthquake = Factor('E')
+# earthquake.init([0.998, 0.002])
+# print(earthquake)
 
-alarm = Factor('A|B,E')
-alarm.init([0.999, 0.001, 0.71, 0.29, 0.06, 0.94, 0.05, 0.95])
-print(alarm)
+# alarm = Factor('A|B,E')
+# alarm.init([0.999, 0.001, 0.71, 0.29, 0.06, 0.94, 0.05, 0.95])
+# print(alarm)
 
-john = Factor('J|A')
-john.init([0.95, 0.05, 0.1, 0.9])
-print(john)
+# john = Factor('J|A')
+# john.init([0.95, 0.05, 0.1, 0.9])
+# print(john)
 
-mary = Factor('M|A')
-mary.init([0.99, 0.01, 0.3, 0.7])
-print(mary)
+# mary = Factor('M|A')
+# mary.init([0.99, 0.01, 0.3, 0.7])
+# print(mary)
 
-f1 = multiply(burglary, earthquake)
-f2 = multiply(f1, alarm)
-f3 = multiply(f2, john)
-f4 = multiply(f3, mary)
-print(f4)
+# f1 = multiply(burglary, earthquake)
+# f2 = multiply(f1, alarm)
+# f3 = multiply(f2, john)
+# f4 = multiply(f3, mary)
+# print(f4)
 
 # ========== OBSERVE TESTS ==========
 observeBefore = Factor('L|T')
@@ -153,3 +153,86 @@ print("Before normalization: ", normalizeBefore2)
 normalizeAfter2 = normalize(normalizeBefore2)
 print("After normalize: ", normalizeAfter2)
 assert(sum(normalizeAfter2.data.values()) == 1.0)
+
+# ========== INFERENCE TESTS ==========
+
+print("========== INFERENCE TESTS ==========")
+burglary = Factor('B')
+burglary.init([0.999, 0.001])
+print(burglary)
+
+earthquake = Factor('E')
+earthquake.init([0.998, 0.002])
+print(earthquake)
+
+alarm = Factor('A|B,E')
+alarm.init([0.999, 0.001, 0.71, 0.29, 0.06, 0.94, 0.05, 0.95])
+print(alarm)
+
+john = Factor('J|A')
+john.init([0.95, 0.05, 0.1, 0.9])
+print(john)
+
+mary = Factor('M|A')
+mary.init([0.99, 0.01, 0.3, 0.7])
+print(mary)
+
+factor_list = [burglary, earthquake, alarm, john, mary]
+query_variables = ["E","B"]
+ordered_hidden_variables = ["A"]
+evidence_list = ["+j", "+m"]
+
+inferenced = inference(factor_list, query_variables,
+                       ordered_hidden_variables, evidence_list)
+print(inferenced)
+
+
+
+print("========THE ONE WITH THE SOLUTION===========")
+
+trav = Factor('TRAV')
+trav.init([0.95, 0.05])
+print(trav)
+
+own_computer = Factor('OC')
+own_computer.init([0.3, 0.7])
+print(own_computer)
+
+fraud = Factor('FRAUD|TRAV')
+fraud.init([0.996, 0.004, 0.99, 0.01])
+print(fraud)
+
+computer_purchase = Factor('CRP|OC')
+computer_purchase.init([0.999, 0.001, 0.9, 0.1])
+print(computer_purchase)
+
+internet_purchase = Factor('IP|FRAUD,OC')
+internet_purchase.init([0.999, 0.001, 0.99, 0.01, 0.989, 0.011, 0.98, 0.02])
+print(internet_purchase)
+
+foreign_purchase = Factor('FP|FRAUD,TRAV')
+foreign_purchase.init([0.99, 0.01, 0.1, 0.9, 0.9, 0.1, 0.1, 0.9])
+print(foreign_purchase)
+
+factor_list = [trav, fraud]
+query_variables = ['FRAUD']
+ordered_hidden_variables = ['TRAV']
+evidence_list = []
+
+inferenced = inference(factor_list, query_variables, ordered_hidden_variables, evidence_list)
+print(inferenced)
+
+
+factor_list = [trav, own_computer, fraud, computer_purchase, internet_purchase, foreign_purchase]
+query_variables = ['FRAUD']
+ordered_hidden_variables = ['TRAV', 'FP', 'FRAUD', 'IP', 'OC', 'CRP']
+evidence_list = ['+fp', '-ip', '+crp']
+
+inferenced = inference(factor_list, query_variables, ordered_hidden_variables, evidence_list)
+print(inferenced)
+
+
+
+
+
+

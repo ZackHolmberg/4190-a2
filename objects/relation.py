@@ -36,4 +36,4 @@ class Relation:
         return None
 
     def __str__(self) -> str:
-        return f'P({self.relation}), values={self.values}'
+        return f'P({self.relation}), evidence={self.values}'
