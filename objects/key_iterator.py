@@ -33,7 +33,7 @@ class KeyIterator:
 
     def __next__(self) -> str:
         """
-        Function aim: 
+        Function aim: Overrides a python iterator method for iterating over the Factor's keys
         Parameters: N/A
         Return: string
         """
