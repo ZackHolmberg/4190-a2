@@ -1,9 +1,28 @@
+"""
+Course: COMP 4190
+Instructor: Cuneyt Akcora
+
+Assignment 2
+
+Submission by:
+Yaroslav Mikhaylik, 7853156
+Zack Holmberg, 7777823
+
+File purpose: Relation class that represents a Factor's relation
+
+"""
+
 from .helpers import value_to_variable
 from typing import List, Union
 
 
 class Relation:
     def __init__(self, relation: str, values: List[str] = []):
+        """
+        Function aim: Relation class constructor
+        Parameters: A string representing the relation and a list of strings representing its values
+        Return: N/A
+        """
         self.relation = relation
         self.is_conditional = '|' in relation
         self.is_joint = not self.is_conditional
@@ -25,8 +44,10 @@ class Relation:
 
     def get_value_by_variable(self, variable: str) -> Union[str, None]:
         """
-        Looks for assigned value that matches a variable.
+        Function aim: Looks for assigned value that matches a variable.
         Example: values=['+r', '-t'], variable='R', returns='+r'
+        Parameters: String representing the variable to get value for
+        Return: Returns a Union object
         """
         for value in self.values:
             v = value_to_variable(value)
@@ -36,4 +57,9 @@ class Relation:
         return None
 
     def __str__(self) -> str:
+        """
+        Function aim: Converts the class instance to a string representation
+        Parameters: N/A
+        Return: string
+        """
         return f'P({self.relation}), evidence={self.values}'

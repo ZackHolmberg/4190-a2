@@ -1,3 +1,18 @@
+"""
+Course: COMP 4190
+Instructor: Cuneyt Akcora
+
+Assignment 2
+
+Submission by:
+Yaroslav Mikhaylik, 7853156
+Zack Holmberg, 7777823
+
+File purpose: The code required for Q2 part b). Contains the factors and their CPTs as computed in part a) in order to compute
+                the probabilities specified in part b)
+
+"""
+
 from objects.factor import Factor
 from functions import inference, sumout, multiply, observe, normalize
 
@@ -33,12 +48,14 @@ print(foreign_purchase)
 print('======INFERENCE CALCULATION FOR Q2B1======')
 
 
-factor_list = [trav, own_computer, fraud, computer_purchase, internet_purchase, foreign_purchase]
+factor_list = [trav, own_computer, fraud,
+               computer_purchase, internet_purchase, foreign_purchase]
 query_variables = ['FRAUD']
 ordered_hidden_variables = ['TRAV', 'FP', 'FRAUD', 'IP', 'OC', 'CRP']
 evidence_list = []
 
-inferenced = inference(factor_list, query_variables, ordered_hidden_variables, evidence_list)
+inferenced = inference(factor_list, query_variables,
+                       ordered_hidden_variables, evidence_list)
 print('>: Inference result')
 print(inferenced)
 
@@ -46,11 +63,13 @@ print(inferenced)
 print('======INFERENCE CALCULATION FOR Q2B2======')
 
 
-factor_list = [trav, own_computer, fraud, computer_purchase, internet_purchase, foreign_purchase]
+factor_list = [trav, own_computer, fraud,
+               computer_purchase, internet_purchase, foreign_purchase]
 query_variables = ['FRAUD']
 ordered_hidden_variables = ['TRAV', 'FP', 'FRAUD', 'IP', 'OC', 'CRP']
 evidence_list = ['+fp', '-ip', '+crp']
 
-inferenced = inference(factor_list, query_variables, ordered_hidden_variables, evidence_list)
+inferenced = inference(factor_list, query_variables,
+                       ordered_hidden_variables, evidence_list)
 print('>: Inference result')
 print(inferenced)

@@ -1,3 +1,17 @@
+"""
+Course: COMP 4190
+Instructor: Cuneyt Akcora
+
+Assignment 2
+
+Submission by:
+Yaroslav Mikhaylik, 7853156
+Zack Holmberg, 7777823
+
+File purpose: Contains the functions required by Q1
+
+"""
+
 from objects.factor import Factor
 from objects.helpers import new_key_from_existing, value_to_variable
 from typing import List
@@ -5,7 +19,9 @@ from typing import List
 
 def observe(f: Factor, var: str, val: str) -> Factor:
     """
-    function that restricts a variable to some value in a given factor.
+    Function aim: Restricts a variable to some value in a given factor.
+    Parameters: Factor object reporesent factor to oberserve, and two strings var and val representing the variable and value to observe, respectively
+    Return: Returns a Factor object
     """
     assert(len(f.relation.variables) > 0)
     assert(val == '+' or val == '-')
@@ -21,8 +37,10 @@ def observe(f: Factor, var: str, val: str) -> Factor:
 
 def multiply(f1: Factor, f2: Factor) -> Factor:
     """
-    Function that multiplies two factors. The join is pretty much a pointwise product of entries
+    Function aim: Function that multiplies two factors. The join is pretty much a pointwise product of entries
     of both tables, as explained in the course notes.
+    Parameters: Two Factor objects to multiply together
+    Return: Returns a Factor object
     """
     # For the new factor we extract what variables should be on the left of '|' and what variables
     #   should be on the right of '|'
@@ -63,7 +81,9 @@ def multiply(f1: Factor, f2: Factor) -> Factor:
 
 def sumout(f: Factor, v: str) -> Factor:
     """
-    Function that sums out a variable in a given factor.
+    Function aim: Function that sums out a variable in a given factor.
+    Parameters: A Factor object and a string representing which variable to sum out
+    Return: Returns a Factor object
     """
     assert(v in f.relation.variables)
     assert(len(f.relation.variables) > 1)
@@ -108,8 +128,10 @@ def sumout(f: Factor, v: str) -> Factor:
 
 def normalize(f: Factor) -> Factor:
     """
-    function that normalizes a factor by dividing each entry by the sum of all the entries.
-    This is useful when the factor is a distribution (i.e. sum of the probabilities must be1).
+    Function aim: Normalizes a factor by dividing each entry by the sum of all the entries.
+    This is useful when the factor is a distribution (i.e. sum of the probabilities must be 1).
+    Parameters: A Factor object to normalize
+    Return: Returns a Factor object
     """
     the_sum = sum(f.data.values())
     for key in f.kit:
@@ -119,15 +141,21 @@ def normalize(f: Factor) -> Factor:
 
 
 """
-function that computes Pr(queryVariables|evidenceList) by variable elimination.
-This function shouldrestrict the factors in factorListaccording to the evidence in evidenceList.
-Next, it should sum-out thehidden variables from the product of the factors in factorList.
-The variables should be summed out inthe order given in orderedListOfHiddenVariables.
-Finally, the answer can be normalized if a probabilitydistribution that sums up to 1 is desired
+function that 
+Finally, the answer can be normalized if a probability distribution that sums up to 1 is desired.
 """
 
 
-def inference(factor_list, query_variables, ordered_hidden_variables, evidence_list):
+def inference(factor_list, query_variables, ordered_hidden_variables, evidence_list) -> Factor:
+    """
+    Function aim: Computes Pr(queryVariables|evidenceList) by variable elimination.
+    This function restricts the factors in factorList according to the evidence in evidenceList.
+    Next, it sums out the hidden variables from the product of the factors in factorList.
+    The variables are summed out in the order given in orderedListOfHiddenVariables.
+    Parameters: A List of Factor objects, a list of strings reporesenting Query variables, a list 
+    of strings representing the ordered hidden variables and finally a list of strings representing evidence
+    Return: Returns a Factor object representing the desired probability
+    """
     new_factor_list = []
     real_hidden_vars = set()
 
@@ -167,12 +195,14 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
             if hidden_var in factor.relation.variables:
                 to_join.append(factor)
 
-        print(f'>: Joining and summing out {len(to_join)} factors:', [ str(f.relation) for f in to_join ])
+        print(f'>: Joining and summing out {len(to_join)} factors:', [
+              str(f.relation) for f in to_join])
         temp_factor = to_join[0]
         new_factor_list.remove(temp_factor)
 
         for i in range(1, len(to_join)):
-            print(f'>: Joining {temp_factor.relation} with {to_join[i].relation}')
+            print(
+                f'>: Joining {temp_factor.relation} with {to_join[i].relation}')
 
             new_factor_list.remove(to_join[i])
             temp_factor = multiply(temp_factor, to_join[i])
@@ -184,14 +214,13 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
         # We additionally handle edge case when attempting to sum out X in P(X|Y), if this factor is not used at all
         #   In such cases we just avoid saving the unused factors
         if (temp_factor.relation.is_conditional and len(temp_factor.relation.query_variables) == 1 and temp_factor.relation.query_variables[0] == hidden_var) or \
-            (temp_factor.relation.is_joint and len(temp_factor.relation.variables) == 1 and temp_factor.relation.variables[0] == hidden_var):
+                (temp_factor.relation.is_joint and len(temp_factor.relation.variables) == 1 and temp_factor.relation.variables[0] == hidden_var):
             print('>: Omitting this unused factor:', temp_factor.relation)
         else:
             temp_factor = sumout(temp_factor, hidden_var)
             print('>: After summing out', hidden_var)
             print(temp_factor)
             new_factor_list.append(temp_factor)
-
 
     # One more join across all factors to get a joint probability
     temp_factor = new_factor_list[0]
@@ -207,10 +236,12 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
     print('>: Normalized factor')
     print(temp_factor)
 
-    conditional_vars = [ v for v in temp_factor.relation.variables if v not in query_variables ]
+    conditional_vars = [
+        v for v in temp_factor.relation.variables if v not in query_variables]
 
     if conditional_vars:
-        new_relation = ','.join(query_variables) + '|' + ','.join(conditional_vars)
+        new_relation = ','.join(query_variables) + '|' + \
+            ','.join(conditional_vars)
     else:
         new_relation = ','.join(query_variables)
 
