@@ -180,12 +180,17 @@ def inference(factor_list, query_variables, ordered_hidden_variables, evidence_l
             print(temp_factor)
 
         print(f'>: Done joining {len(to_join)} factors')
-        temp_factor = sumout(temp_factor, hidden_var)
 
-        print('>: After summing out', hidden_var)
-        print(temp_factor)
-
-        new_factor_list.append(temp_factor)
+        # We additionally handle edge case when attempting to sum out X in P(X|Y), if this factor is not used at all
+        #   In such cases we just avoid saving the unused factors
+        if (temp_factor.relation.is_conditional and len(temp_factor.relation.query_variables) == 1 and temp_factor.relation.query_variables[0] == hidden_var) or \
+            (temp_factor.relation.is_joint and len(temp_factor.relation.variables) == 1 and temp_factor.relation.variables[0] == hidden_var):
+            print('>: Omitting this unused factor:', temp_factor.relation)
+        else:
+            temp_factor = sumout(temp_factor, hidden_var)
+            print('>: After summing out', hidden_var)
+            print(temp_factor)
+            new_factor_list.append(temp_factor)
 
 
     # One more join across all factors to get a joint probability

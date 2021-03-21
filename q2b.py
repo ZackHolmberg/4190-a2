@@ -33,7 +33,7 @@ print(foreign_purchase)
 print('======INFERENCE CALCULATION FOR Q2B1======')
 
 
-factor_list = [trav, fraud]
+factor_list = [trav, own_computer, fraud, computer_purchase, internet_purchase, foreign_purchase]
 query_variables = ['FRAUD']
 ordered_hidden_variables = ['TRAV', 'FP', 'FRAUD', 'IP', 'OC', 'CRP']
 evidence_list = []
